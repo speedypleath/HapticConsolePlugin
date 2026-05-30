@@ -2,12 +2,13 @@ import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { PARAM_META } from '../params';
 import { ccMap, learnTarget } from '../settings';
-import { getMappings, setMapping, startMidiLearn, listMidiPorts, selectMidiPort } from '../bridge';
+import { getMappings, setMapping, startMidiLearn, listMidiPorts, selectMidiPort, virtualOutputName } from '../bridge';
 
 type Tab = 'midi' | 'daw';
 const activeTab  = signal<Tab>('midi');
 const portNames  = signal<string[]>([]);
 const activePort = signal<number>(0);
+const outputPort = signal<string | null>(null);
 
 export function Settings() {
     useEffect(() => {
@@ -16,6 +17,9 @@ export function Settings() {
         });
         listMidiPorts().then(ports => {
             portNames.value = ports;
+        });
+        virtualOutputName().then(name => {
+            outputPort.value = name;
         });
     }, []);
 
@@ -64,6 +68,12 @@ function MidiTab() {
             {portNames.value.length === 0 && (
                 <p class="daw-info">No MIDI input ports found. Connect your device and reopen settings.</p>
             )}
+            <div class="osc-port-row">
+                <span class="field-label">MIDI OUTPUT</span>
+                <span class={`port-status${outputPort.value ? ' active' : ''}`}>
+                    {outputPort.value ?? 'unavailable'}
+                </span>
+            </div>
             <table class="map-table">
                 <thead>
                     <tr>

@@ -11,6 +11,15 @@
             "problemMatcher": "$rustc"
         },
         {
+            "label": "cargo: test",
+            "type": "shell",
+            "command": "cargo test",
+            "options": { "cwd": "${workspaceFolder}/src-tauri" },
+            "group": { "kind": "test", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "shared" },
+            "problemMatcher": "$rustc"
+        },
+        {
             "label": "tauri: dev",
             "type": "shell",
             "command": "cargo tauri dev",

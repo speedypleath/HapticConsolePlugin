@@ -465,6 +465,16 @@ header > span {
   color: var(--text-dim);
 }
 
+.port-status {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  flex: 1;
+  padding: 0.2rem 0.35rem;
+}
+
+.port-status.active { color: var(--gold); }
+
 /* ── DAW tab extras ─────────────────────────────────────────────────────── */
 .daw-tab {
   display: flex;

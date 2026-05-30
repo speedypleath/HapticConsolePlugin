@@ -3,7 +3,5 @@ import { setupBridge } from './bridge';
 import { App } from './App';
 import './style.css';
 
-(async () => {
-    await setupBridge();
-    render(<App />, document.getElementById('root')!);
-})();
+render(<App />, document.getElementById('root')!);
+setupBridge().catch(console.error);

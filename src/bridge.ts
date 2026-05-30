@@ -18,8 +18,9 @@ export async function setupBridge(): Promise<void> {
     });
 }
 
-export const getMappings    = ()                                  => invoke<Record<string, number>>('get_mappings');
-export const setMapping     = (cc: number, paramId: string)      => invoke('set_mapping',      { cc, paramId });
-export const startMidiLearn = (paramId: string)                  => invoke('start_midi_learn', { paramId });
-export const listMidiPorts  = ()                                  => invoke<string[]>('list_midi_ports');
-export const selectMidiPort = (index: number)                    => invoke('select_midi_port', { index });
+export const getMappings       = ()                             => invoke<Record<string, number>>('get_mappings');
+export const setMapping        = (cc: number, paramId: string)  => invoke('set_mapping',        { cc, paramId });
+export const startMidiLearn    = (paramId: string)              => invoke('start_midi_learn',   { paramId });
+export const listMidiPorts     = ()                             => invoke<string[]>('list_midi_ports');
+export const selectMidiPort    = (index: number)                => invoke('select_midi_port',   { index });
+export const virtualOutputName = ()                             => invoke<string | null>('virtual_output_name');

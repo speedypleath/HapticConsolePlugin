@@ -8,15 +8,15 @@ impl MidiMapper {
     pub fn new() -> Self {
         let mut map = HashMap::new();
         let defaults: &[(u8, &str)] = &[
-            (1,  "flywheel_velocity"),
-            (2,  "flywheel_direction"),
-            (3,  "pneumatic_pressure"),
-            (4,  "spring_tension"),
-            (5,  "spring_acoustic"),
-            (6,  "lean_total"),
-            (7,  "lean_balance"),
-            (8,  "matrix_centroid_x"),
-            (9,  "matrix_centroid_y"),
+            (1, "flywheel_velocity"),
+            (2, "flywheel_direction"),
+            (3, "pneumatic_pressure"),
+            (4, "spring_tension"),
+            (5, "spring_acoustic"),
+            (6, "lean_total"),
+            (7, "lean_balance"),
+            (8, "matrix_centroid_x"),
+            (9, "matrix_centroid_y"),
             (10, "matrix_pressure"),
             (11, "joystick_1_x"),
             (12, "joystick_1_y"),
@@ -34,6 +34,9 @@ impl MidiMapper {
     }
 
     pub fn set_mapping(&mut self, cc: u8, param_id: String) {
+        // Evict any existing CC that already pointed to this param so the
+        // inverted map (param → cc) stays unambiguous.
+        self.map.retain(|_, id| id != &param_id);
         self.map.insert(cc, param_id);
     }
 

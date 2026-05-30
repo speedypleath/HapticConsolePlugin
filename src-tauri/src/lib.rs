@@ -1,7 +1,9 @@
 mod mapping;
 mod midi;
+#[cfg(test)]
+mod tests;
 
-use midi::{AppState, list_input_ports, start_midi_thread};
+use midi::{list_input_ports, start_midi_thread, AppState};
 use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -34,13 +36,18 @@ fn list_midi_ports(state: State<'_, SharedState>) -> Vec<String> {
 }
 
 #[tauri::command]
-fn select_midi_port(
-    index: usize,
-    app:   tauri::AppHandle,
-    state: State<'_, SharedState>,
-) {
+fn select_midi_port(index: usize, app: tauri::AppHandle, state: State<'_, SharedState>) {
     state.lock().active_port = index;
     start_midi_thread(app, state.inner().clone(), index);
+}
+
+#[tauri::command]
+fn virtual_output_name(state: State<'_, SharedState>) -> Option<String> {
+    if state.lock().virtual_port_active {
+        Some("Haptic Console".to_string())
+    } else {
+        None
+    }
 }
 
 // ── Entry point ───────────────────────────────────────────────────────────────
@@ -58,6 +65,7 @@ pub fn run() {
             start_midi_learn,
             list_midi_ports,
             select_midi_port,
+            virtual_output_name,
         ])
         .setup(move |app| {
             let ports = list_input_ports();
