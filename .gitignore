@@ -1,0 +1,19 @@
+# CMake build trees
+build/
+build-*/
+
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# CMake user overrides (machine-local)
+CMakeUserPresets.json
+
+# VSCode workspace files (keep launch.json / tasks.json)
+.vscode/*.code-workspace
+
+# Editor temporaries
+*.swp
+*.swo
+*~

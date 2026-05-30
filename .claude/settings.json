@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake:*)",
+      "Bash(cmake --build:*)",
+      "Bash(cmake --install:*)",
+      "Bash(ninja:*)",
+      "Bash(make:*)",
+      "Bash(clang-format:*)",
+      "Bash(clang-tidy:*)",
+      "Bash(ls:*)",
+      "Bash(find . *)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(npx vite:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=\"$CLAUDE_TOOL_RESULT_FILE_PATH\"; if [[ \"$FILE\" == *.cpp || \"$FILE\" == *.h || \"$FILE\" == *.mm ]]; then clang-format -i \"$FILE\" && echo \"clang-format: $FILE\"; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '\\n[haptic-console] Session ended. Run: cmake --build build --config Debug to verify changes compile.'"
+          }
+        ]
+      }
+    ]
+  }
+}

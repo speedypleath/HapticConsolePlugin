@@ -1,0 +1,53 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cmake: configure (with extras)",
+            "type": "shell",
+            "command": "cmake -B build -DCMAKE_BUILD_TYPE=Debug -DJUCE_BUILD_EXTRAS=ON",
+            "group": "build",
+            "presentation": { "reveal": "silent", "panel": "shared" },
+            "problemMatcher": []
+        },
+        {
+            "label": "cmake: build plugin",
+            "type": "shell",
+            "command": "cmake --build build --config Debug --target HapticConsolePlugin_VST3 -j$(sysctl -n hw.logicalcpu)",
+            "group": { "kind": "build", "isDefault": true },
+            "dependsOn": "cmake: configure (with extras)",
+            "presentation": { "reveal": "always", "panel": "shared" },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "cmake: build AudioPluginHost",
+            "type": "shell",
+            "command": "cmake --build build --config Debug --target AudioPluginHost -j$(sysctl -n hw.logicalcpu)",
+            "group": "build",
+            "dependsOn": "cmake: configure (with extras)",
+            "presentation": { "reveal": "always", "panel": "shared" },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "vite: dev server",
+            "type": "shell",
+            "command": "npx vite Source/UI",
+            "isBackground": true,
+            "presentation": { "reveal": "silent", "panel": "dedicated" },
+            "problemMatcher": {
+                "owner": "vite",
+                "pattern": { "regexp": "^$" },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "VITE",
+                    "endsPattern": "Local:"
+                }
+            }
+        },
+        {
+            "label": "debug: prepare",
+            "dependsOn": ["cmake: build plugin", "vite: dev server"],
+            "dependsOrder": "parallel",
+            "problemMatcher": []
+        }
+    ]
+}
