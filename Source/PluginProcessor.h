@@ -1,6 +1,9 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <atomic>
+#include <functional>
 #include "MidiMapper.h"
+#include "OscMapper.h"
 
 namespace HapticConsole
 {
@@ -34,10 +37,20 @@ public:
     void getStateInformation(juce::MemoryBlock& dest) override;
     void setStateInformation(const void* data, int size) override;
 
+    void startMidiLearn(const juce::String& paramId);
+
     juce::AudioProcessorValueTreeState apvts;
     MidiMapper midiMapper;
+    OscMapper  oscMapper;
+
+    std::atomic<bool> midiLearnActive { false };
+    juce::CriticalSection learnCallbackLock;
+    std::function<void(const juce::String&, int)> onLearnComplete;
 
 private:
+    juce::SpinLock  learnLock;
+    juce::String    learnParamId;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HapticConsoleProcessor)
 };
 

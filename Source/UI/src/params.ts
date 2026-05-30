@@ -1,4 +1,4 @@
-import { signal } from '@preact/signals';
+import { signal, Signal } from '@preact/signals';
 
 export const PARAM_META = [
     { id: 'flywheel_velocity',  label: 'FW Vel',  bipolar: false },
@@ -21,6 +21,6 @@ export type ParamId = typeof PARAM_META[number]['id'];
 
 export const paramValues = Object.fromEntries(
     PARAM_META.map(p => [p.id, signal(0)])
-) as Record<ParamId, ReturnType<typeof signal<number>>>;
+) as Record<ParamId, Signal<number>>;
 
 export const isOnline = signal(false);

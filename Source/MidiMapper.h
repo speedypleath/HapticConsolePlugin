@@ -12,6 +12,7 @@ public:
 
     juce::String paramForCC(int cc) const;
     void setMapping(int cc, juce::String paramId);
+    const std::unordered_map<int, juce::String>& getMap() const { return map; }
 
 private:
     std::unordered_map<int, juce::String> map;

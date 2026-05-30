@@ -15,6 +15,7 @@ public:
     void resized() override;
 
     void pushParamToUI(const juce::String& paramId, float value);
+    void onMidiLearnResult(const juce::String& paramId, int cc);
 
 private:
     struct ParamListener : juce::AudioProcessorValueTreeState::Listener

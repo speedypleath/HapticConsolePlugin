@@ -1,4 +1,5 @@
 import { paramValues, isOnline, ParamId } from './params';
+import { ccMap, learnTarget } from './settings';
 
 export function setupBridge(): void {
     window.haptic = {
@@ -9,29 +10,39 @@ export function setupBridge(): void {
                 isOnline.value = true;
             }
         },
+        onMidiLearnComplete(paramId, cc) {
+            ccMap.value = { ...ccMap.value, [paramId]: cc };
+            learnTarget.value = null;
+        },
     };
 }
 
-// Calls the native function registered with withNativeFunction("setMapping", …) in PluginEditor.cpp.
-// No-ops gracefully when running outside the WebView.
-export let setMapping: (cc: number, paramId: string) => Promise<unknown> = () => Promise.resolve();
+// ── Bridge factory ───────────────────────────────────────────────────────────
+
+type BridgeFn = (name: string, params: unknown[]) => Promise<unknown>;
+
+let call: BridgeFn = (_name, _params) => Promise.resolve();
 
 if (typeof window.__JUCE__ !== 'undefined') {
-    const pending = new Map<number, { resolve: (v: unknown) => void }>();
+    const pending = new Map<number, (v: unknown) => void>();
     let nextId = 0;
 
     window.__JUCE__.backend.addEventListener('__juce__complete', (data) => {
         const { promiseId, result } = data as { promiseId: number; result: unknown };
-        pending.get(promiseId)?.resolve(result);
+        pending.get(promiseId)?.(result);
         pending.delete(promiseId);
     });
 
-    setMapping = (cc, paramId) => {
+    call = (name, params) => {
         const id = nextId++;
-        const promise = new Promise<unknown>(resolve => pending.set(id, { resolve }));
-        window.__JUCE__!.backend.emitEvent('__juce__invoke', {
-            name: 'setMapping', params: [cc, paramId], resultId: id,
-        });
+        const promise = new Promise<unknown>(resolve => pending.set(id, resolve));
+        window.__JUCE__!.backend.emitEvent('__juce__invoke', { name, params, resultId: id });
         return promise;
     };
 }
+
+export const setMapping    = (cc: number, paramId: string)           => call('setMapping',    [cc, paramId]);
+export const getMappings   = ()                                       => call('getMappings',   []);
+export const startMidiLearn= (paramId: string)                       => call('startMidiLearn',[paramId]);
+export const setOscMapping = (address: string, paramId: string)      => call('setOscMapping', [address, paramId]);
+export const setOscPort    = (port: number)                          => call('setOscPort',    [port]);

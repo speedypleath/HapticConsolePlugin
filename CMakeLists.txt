@@ -18,6 +18,7 @@ target_sources(HapticConsolePlugin PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
     Source/MidiMapper.cpp
+    Source/OscMapper.cpp
 )
 
 target_include_directories(HapticConsolePlugin PRIVATE Source)
@@ -32,6 +33,7 @@ target_link_libraries(HapticConsolePlugin PRIVATE
     juce::juce_audio_processors
     juce::juce_audio_plugin_client
     juce::juce_gui_extra
+    juce::juce_osc
     juce::juce_core
     juce::juce_data_structures
     juce::juce_events

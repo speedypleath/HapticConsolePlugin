@@ -244,3 +244,225 @@ header > span {
   font-family: var(--font-mono);
   letter-spacing: 0.04em;
 }
+
+/* ── Settings button ────────────────────────────────────────────────────── */
+#settings-btn {
+  margin-left: 0.6rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+#settings-btn:hover,
+#settings-btn.active {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+
+/* ── Settings panel ─────────────────────────────────────────────────────── */
+#settings {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.tab-btn.active {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+
+.settings-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ── Mapping table ──────────────────────────────────────────────────────── */
+.map-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+}
+
+.map-table th {
+  text-align: left;
+  color: var(--text-dim);
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.map-table td {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #1a1a1a;
+  vertical-align: middle;
+}
+
+.map-table tr.learning td {
+  background: rgba(200,168,75,0.07);
+}
+
+.col-param {
+  color: var(--text);
+  white-space: nowrap;
+  width: 5rem;
+}
+
+.col-cc {
+  width: 4rem;
+}
+
+.col-range {
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* ── Inputs ─────────────────────────────────────────────────────────────── */
+.cc-input {
+  width: 3.5rem;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 0.2rem 0.35rem;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.cc-input::-webkit-outer-spin-button,
+.cc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.cc-input:focus {
+  outline: none;
+  border-color: var(--gold-dim);
+}
+
+.addr-input {
+  width: 100%;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  padding: 0.2rem 0.35rem;
+}
+
+.addr-input:focus {
+  outline: none;
+  border-color: var(--gold-dim);
+}
+
+/* ── Learn button ───────────────────────────────────────────────────────── */
+.learn-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.learn-btn:hover {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+
+.learn-btn.active {
+  color: var(--gold);
+  border-color: var(--gold);
+  animation: pulse-border 1s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--gold); }
+  50%       { border-color: var(--gold-dim); }
+}
+
+/* ── OSC tab extras ─────────────────────────────────────────────────────── */
+.osc-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.osc-port-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.5rem;
+}
+
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ── DAW tab extras ─────────────────────────────────────────────────────── */
+.daw-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.daw-info {
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  padding: 0 0.5rem;
+}
+
+.param-id {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--gold-dim);
+}
