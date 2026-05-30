@@ -1,10 +1,12 @@
 mod mapping;
 mod midi;
+mod osc;
 #[cfg(test)]
 mod tests;
 
 use midi::{list_input_ports, start_midi_thread, AppState};
 use parking_lot::Mutex;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::State;
@@ -50,6 +52,41 @@ fn virtual_output_name(state: State<'_, SharedState>) -> Option<String> {
     }
 }
 
+// ── OSC commands ──────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OscConfigDto {
+    host: String,
+    port: u16,
+    addresses: HashMap<String, String>,
+}
+
+#[tauri::command]
+fn get_osc_config(state: State<'_, SharedState>) -> OscConfigDto {
+    let st = state.lock();
+    OscConfigDto {
+        host: st.osc.host.clone(),
+        port: st.osc.port,
+        addresses: st.osc.addresses.clone(),
+    }
+}
+
+#[tauri::command]
+fn set_osc_host(host: String, state: State<'_, SharedState>) {
+    state.lock().osc.host = host;
+}
+
+#[tauri::command]
+fn set_osc_port(port: u16, state: State<'_, SharedState>) {
+    state.lock().osc.port = port;
+}
+
+#[tauri::command]
+fn set_osc_address(param_id: String, address: String, state: State<'_, SharedState>) {
+    state.lock().osc.addresses.insert(param_id, address);
+}
+
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -66,6 +103,10 @@ pub fn run() {
             list_midi_ports,
             select_midi_port,
             virtual_output_name,
+            get_osc_config,
+            set_osc_host,
+            set_osc_port,
+            set_osc_address,
         ])
         .setup(move |app| {
             let ports = list_input_ports();

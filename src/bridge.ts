@@ -24,3 +24,14 @@ export const startMidiLearn    = (paramId: string)              => invoke('start
 export const listMidiPorts     = ()                             => invoke<string[]>('list_midi_ports');
 export const selectMidiPort    = (index: number)                => invoke('select_midi_port',   { index });
 export const virtualOutputName = ()                             => invoke<string | null>('virtual_output_name');
+
+export interface OscConfig {
+    host:      string;
+    port:      number;
+    addresses: Record<string, string>;
+}
+
+export const getOscConfig   = ()                                          => invoke<OscConfig>('get_osc_config');
+export const setOscHost     = (host: string)                              => invoke('set_osc_host',    { host });
+export const setOscPort     = (port: number)                              => invoke('set_osc_port',    { port });
+export const setOscAddress  = (paramId: string, address: string)          => invoke('set_osc_address', { paramId, address });

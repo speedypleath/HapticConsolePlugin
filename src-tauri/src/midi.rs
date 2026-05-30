@@ -10,6 +10,7 @@ use std::sync::{
 use tauri::{AppHandle, Emitter};
 
 use crate::mapping::MidiMapper;
+use crate::osc::OscConfig;
 
 pub struct AppState {
     pub mapper: MidiMapper,
@@ -17,14 +18,18 @@ pub struct AppState {
     pub port_names: Vec<String>,
     pub active_port: usize,
     pub virtual_port_active: bool,
+    pub osc: OscConfig,
     stop_flag: Option<Arc<AtomicBool>>,
     midi_thread: Option<std::thread::Thread>,
 }
 
 impl AppState {
     pub fn new() -> Self {
+        let mapper = MidiMapper::new();
+        let osc = OscConfig::new(mapper.param_to_cc().into_keys());
         Self {
-            mapper: MidiMapper::new(),
+            mapper,
+            osc,
             learn_target: None,
             port_names: Vec::new(),
             active_port: 0,
@@ -178,6 +183,19 @@ fn handle_message(
 ) {
     let mut st = state.lock();
     let events = process_message(msg, &mut st);
+
+    // Collect OSC sends while the lock is still held.
+    let osc_sends: Vec<(String, u16, String, f64)> = events
+        .iter()
+        .filter_map(|e| match e {
+            MidiEvent::ParamChange { param_id, value } => {
+                let addr = st.osc.address_for(param_id);
+                Some((st.osc.host.clone(), st.osc.port, addr, *value))
+            }
+            _ => None,
+        })
+        .collect();
+
     drop(st);
 
     let forward = events
@@ -193,6 +211,10 @@ fn handle_message(
                 let _ = app.emit("midi-learn-complete", LearnCompletePayload { param_id, cc });
             }
         }
+    }
+
+    for (host, port, addr, value) in osc_sends {
+        crate::osc::send_param(&host, port, &addr, value);
     }
 
     if forward {

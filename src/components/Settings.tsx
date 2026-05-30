@@ -2,31 +2,30 @@ import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { PARAM_META } from '../params';
 import { ccMap, learnTarget } from '../settings';
-import { getMappings, setMapping, startMidiLearn, listMidiPorts, selectMidiPort, virtualOutputName } from '../bridge';
+import {
+    getMappings, setMapping, startMidiLearn, listMidiPorts, selectMidiPort, virtualOutputName,
+    getOscConfig, setOscHost, setOscPort, setOscAddress, OscConfig,
+} from '../bridge';
 
-type Tab = 'midi' | 'daw';
+type Tab = 'midi' | 'osc' | 'daw';
 const activeTab  = signal<Tab>('midi');
 const portNames  = signal<string[]>([]);
 const activePort = signal<number>(0);
 const outputPort = signal<string | null>(null);
+const oscConfig  = signal<OscConfig>({ host: '127.0.0.1', port: 8000, addresses: {} });
 
 export function Settings() {
     useEffect(() => {
-        getMappings().then(data => {
-            ccMap.value = data as Record<string, number>;
-        });
-        listMidiPorts().then(ports => {
-            portNames.value = ports;
-        });
-        virtualOutputName().then(name => {
-            outputPort.value = name;
-        });
+        getMappings().then(data => { ccMap.value = data as Record<string, number>; });
+        listMidiPorts().then(ports => { portNames.value = ports; });
+        virtualOutputName().then(name => { outputPort.value = name; });
+        getOscConfig().then(cfg => { oscConfig.value = cfg; });
     }, []);
 
     return (
         <div id="settings">
             <div class="settings-tabs">
-                {(['midi', 'daw'] as Tab[]).map(tab => (
+                {(['midi', 'osc', 'daw'] as Tab[]).map(tab => (
                     <button
                         key={tab}
                         class={`tab-btn${activeTab.value === tab ? ' active' : ''}`}
@@ -38,6 +37,7 @@ export function Settings() {
             </div>
             <div class="settings-content">
                 {activeTab.value === 'midi' && <MidiTab />}
+                {activeTab.value === 'osc'  && <OscTab />}
                 {activeTab.value === 'daw'  && <DawTab />}
             </div>
         </div>
@@ -129,6 +129,89 @@ function MidiRow({ id, label }: { id: string; label: string }) {
     );
 }
 
+// ── OSC tab ───────────────────────────────────────────────────────────────────
+
+function OscTab() {
+    function handleHost(e: Event) {
+        const host = (e.target as HTMLInputElement).value.trim();
+        if (!host) return;
+        setOscHost(host);
+        oscConfig.value = { ...oscConfig.value, host };
+    }
+
+    function handlePort(e: Event) {
+        const port = parseInt((e.target as HTMLInputElement).value, 10);
+        if (isNaN(port) || port < 1 || port > 65535) return;
+        setOscPort(port);
+        oscConfig.value = { ...oscConfig.value, port };
+    }
+
+    return (
+        <div class="osc-tab">
+            <div class="osc-port-row">
+                <span class="field-label">HOST</span>
+                <input
+                    class="addr-input"
+                    value={oscConfig.value.host}
+                    onBlur={handleHost}
+                    placeholder="127.0.0.1"
+                />
+            </div>
+            <div class="osc-port-row">
+                <span class="field-label">PORT</span>
+                <input
+                    type="number"
+                    class="cc-input"
+                    style="width:5rem"
+                    min={1} max={65535}
+                    value={oscConfig.value.port}
+                    onBlur={handlePort}
+                />
+            </div>
+            <table class="map-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>OSC Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {PARAM_META.map(p => (
+                        <OscRow
+                            key={p.id}
+                            id={p.id}
+                            label={p.label}
+                            address={oscConfig.value.addresses[p.id] ?? `/haptic/${p.id}`}
+                        />
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+function OscRow({ id, label, address }: { id: string; label: string; address: string }) {
+    function handleAddress(e: Event) {
+        const addr = (e.target as HTMLInputElement).value.trim();
+        if (!addr) return;
+        setOscAddress(id, addr);
+        oscConfig.value = { ...oscConfig.value, addresses: { ...oscConfig.value.addresses, [id]: addr } };
+    }
+
+    return (
+        <tr>
+            <td class="col-param">{label}</td>
+            <td>
+                <input
+                    class="addr-input"
+                    value={address}
+                    onBlur={handleAddress}
+                />
+            </td>
+        </tr>
+    );
+}
+
 // ── DAW tab ───────────────────────────────────────────────────────────────────
 
 function DawTab() {
@@ -142,7 +225,7 @@ function DawTab() {
                 <thead>
                     <tr>
                         <th>Parameter</th>
-                        <th>Default CC</th>
+                        <th>CC</th>
                         <th>Range</th>
                     </tr>
                 </thead>
