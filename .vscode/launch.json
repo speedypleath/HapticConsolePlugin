@@ -2,17 +2,23 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug VST3 in AudioPluginHost",
-            "type": "cppdbg",
+            "name": "Tauri: Dev",
+            "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/JUCE/extras/AudioPluginHost/AudioPluginHost_artefacts/Debug/AudioPluginHost.app/Contents/MacOS/AudioPluginHost",
+            "cargo": {
+                "args": ["build", "--manifest-path=src-tauri/Cargo.toml", "--no-default-features"],
+                "filter": { "name": "haptic-console", "kind": "bin" }
+            },
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "debug: prepare"
+            "preLaunchTask": "vite: dev server"
+        },
+        {
+            "name": "Tauri: Attach",
+            "type": "lldb",
+            "request": "attach",
+            "program": "${workspaceFolder}/src-tauri/target/debug/haptic-console",
+            "pid": "${command:pickProcess}"
         }
     ]
 }

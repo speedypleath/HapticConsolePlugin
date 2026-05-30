@@ -2,35 +2,35 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "cmake: configure (with extras)",
+            "label": "cargo: build (debug)",
             "type": "shell",
-            "command": "cmake -B build -DCMAKE_BUILD_TYPE=Debug -DJUCE_BUILD_EXTRAS=ON",
-            "group": "build",
-            "presentation": { "reveal": "silent", "panel": "shared" },
-            "problemMatcher": []
-        },
-        {
-            "label": "cmake: build plugin",
-            "type": "shell",
-            "command": "cmake --build build --config Debug --target HapticConsolePlugin_VST3 -j$(sysctl -n hw.logicalcpu)",
+            "command": "cargo build",
+            "options": { "cwd": "${workspaceFolder}/src-tauri" },
             "group": { "kind": "build", "isDefault": true },
-            "dependsOn": "cmake: configure (with extras)",
             "presentation": { "reveal": "always", "panel": "shared" },
-            "problemMatcher": "$gcc"
+            "problemMatcher": "$rustc"
         },
         {
-            "label": "cmake: build AudioPluginHost",
+            "label": "tauri: dev",
             "type": "shell",
-            "command": "cmake --build build --config Debug --target AudioPluginHost -j$(sysctl -n hw.logicalcpu)",
-            "group": "build",
-            "dependsOn": "cmake: configure (with extras)",
-            "presentation": { "reveal": "always", "panel": "shared" },
-            "problemMatcher": "$gcc"
+            "command": "cargo tauri dev",
+            "options": { "cwd": "${workspaceFolder}" },
+            "isBackground": true,
+            "presentation": { "reveal": "always", "panel": "dedicated" },
+            "problemMatcher": {
+                "owner": "tauri",
+                "pattern": { "regexp": "^$" },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Compiling",
+                    "endsPattern": "Running"
+                }
+            }
         },
         {
             "label": "vite: dev server",
             "type": "shell",
-            "command": "npm --prefix Source/UI run dev",
+            "command": "npm run dev",
             "isBackground": true,
             "presentation": { "reveal": "silent", "panel": "dedicated" },
             "problemMatcher": {
@@ -42,12 +42,6 @@
                     "endsPattern": "Local:"
                 }
             }
-        },
-        {
-            "label": "debug: prepare",
-            "dependsOn": ["cmake: build plugin", "vite: dev server"],
-            "dependsOrder": "parallel",
-            "problemMatcher": []
         }
     ]
 }

@@ -1,37 +1,28 @@
 import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { PARAM_META } from '../params';
-import { ccMap, oscAddresses, oscPort, learnTarget } from '../settings';
-import { getMappings, setMapping, startMidiLearn, setOscMapping, setOscPort } from '../bridge';
+import { ccMap, learnTarget } from '../settings';
+import { getMappings, setMapping, startMidiLearn, listMidiPorts, selectMidiPort } from '../bridge';
 
-type Tab = 'midi' | 'osc' | 'daw';
-const activeTab = signal<Tab>('midi');
+type Tab = 'midi' | 'daw';
+const activeTab  = signal<Tab>('midi');
+const portNames  = signal<string[]>([]);
+const activePort = signal<number>(0);
 
 export function Settings() {
     useEffect(() => {
         getMappings().then(data => {
-            if (!data || typeof data !== 'object') return;
-            const d = data as Record<string, unknown>;
-
-            const midi = (d.midi ?? {}) as Record<string, string>;
-            const inv: Record<string, number> = {};
-            for (const [cc, pid] of Object.entries(midi))
-                inv[pid] = parseInt(cc, 10);
-            ccMap.value = inv;
-
-            const osc = (d.osc ?? {}) as { port?: number; addresses?: Record<string, string> };
-            oscPort.value = osc.port ?? 8000;
-            const addrs: Record<string, string> = {};
-            for (const [addr, pid] of Object.entries(osc.addresses ?? {}))
-                addrs[pid] = addr;
-            oscAddresses.value = addrs;
+            ccMap.value = data as Record<string, number>;
+        });
+        listMidiPorts().then(ports => {
+            portNames.value = ports;
         });
     }, []);
 
     return (
         <div id="settings">
             <div class="settings-tabs">
-                {(['midi', 'osc', 'daw'] as Tab[]).map(tab => (
+                {(['midi', 'daw'] as Tab[]).map(tab => (
                     <button
                         key={tab}
                         class={`tab-btn${activeTab.value === tab ? ' active' : ''}`}
@@ -43,34 +34,54 @@ export function Settings() {
             </div>
             <div class="settings-content">
                 {activeTab.value === 'midi' && <MidiTab />}
-                {activeTab.value === 'osc'  && <OscTab />}
                 {activeTab.value === 'daw'  && <DawTab />}
             </div>
         </div>
     );
 }
 
-// ── MIDI tab ─────────────────────────────────────────────────────────────────
+// ── MIDI tab ──────────────────────────────────────────────────────────────────
 
 function MidiTab() {
+    function handlePort(e: Event) {
+        const idx = parseInt((e.target as HTMLSelectElement).value, 10);
+        activePort.value = idx;
+        selectMidiPort(idx);
+    }
+
     return (
-        <table class="map-table">
-            <thead>
-                <tr>
-                    <th>Parameter</th>
-                    <th>CC</th>
-                    <th>Learn</th>
-                </tr>
-            </thead>
-            <tbody>
-                {PARAM_META.map(p => <MidiRow key={p.id} id={p.id} label={p.label} />)}
-            </tbody>
-        </table>
+        <div class="midi-tab">
+            {portNames.value.length > 0 && (
+                <div class="osc-port-row">
+                    <span class="field-label">MIDI INPUT</span>
+                    <select class="port-select" value={activePort.value} onChange={handlePort}>
+                        {portNames.value.map((name, i) => (
+                            <option key={i} value={i}>{name}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
+            {portNames.value.length === 0 && (
+                <p class="daw-info">No MIDI input ports found. Connect your device and reopen settings.</p>
+            )}
+            <table class="map-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>CC</th>
+                        <th>Learn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {PARAM_META.map(p => <MidiRow key={p.id} id={p.id} label={p.label} />)}
+                </tbody>
+            </table>
+        </div>
     );
 }
 
 function MidiRow({ id, label }: { id: string; label: string }) {
-    const cc = ccMap.value[id] ?? null;
+    const cc         = ccMap.value[id] ?? null;
     const isLearning = learnTarget.value === id;
 
     function handleCC(e: Event) {
@@ -108,81 +119,20 @@ function MidiRow({ id, label }: { id: string; label: string }) {
     );
 }
 
-// ── OSC tab ──────────────────────────────────────────────────────────────────
-
-function OscTab() {
-    function handlePort(e: Event) {
-        const val = parseInt((e.target as HTMLInputElement).value, 10);
-        if (isNaN(val)) return;
-        setOscPort(val);
-        oscPort.value = val;
-    }
-
-    return (
-        <div class="osc-tab">
-            <div class="osc-port-row">
-                <span class="field-label">UDP PORT</span>
-                <input
-                    type="number"
-                    class="cc-input"
-                    min={1024} max={65535}
-                    value={oscPort.value}
-                    onChange={handlePort}
-                />
-            </div>
-            <table class="map-table">
-                <thead>
-                    <tr>
-                        <th>Parameter</th>
-                        <th>OSC Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {PARAM_META.map(p => <OscRow key={p.id} id={p.id} label={p.label} />)}
-                </tbody>
-            </table>
-        </div>
-    );
-}
-
-function OscRow({ id, label }: { id: string; label: string }) {
-    const addr = oscAddresses.value[id] ?? `/haptic/${id}`;
-
-    function handleChange(e: Event) {
-        const val = (e.target as HTMLInputElement).value;
-        setOscMapping(val, id);
-        oscAddresses.value = { ...oscAddresses.value, [id]: val };
-    }
-
-    return (
-        <tr>
-            <td class="col-param">{label}</td>
-            <td>
-                <input
-                    type="text"
-                    class="addr-input"
-                    value={addr}
-                    onChange={handleChange}
-                />
-            </td>
-        </tr>
-    );
-}
-
-// ── DAW tab ──────────────────────────────────────────────────────────────────
+// ── DAW tab ───────────────────────────────────────────────────────────────────
 
 function DawTab() {
     return (
         <div class="daw-tab">
             <p class="daw-info">
-                Parameters appear automatically as DAW automation lanes.
-                Use the IDs below to address them.
+                A virtual MIDI port named <code class="param-id">Haptic Console</code> is
+                created automatically. Point your DAW to this port to receive remapped CCs.
             </p>
             <table class="map-table">
                 <thead>
                     <tr>
                         <th>Parameter</th>
-                        <th>Automation ID</th>
+                        <th>Default CC</th>
                         <th>Range</th>
                     </tr>
                 </thead>
@@ -190,7 +140,7 @@ function DawTab() {
                     {PARAM_META.map(p => (
                         <tr key={p.id}>
                             <td class="col-param">{p.label}</td>
-                            <td><code class="param-id">{p.id}</code></td>
+                            <td><code class="param-id">{ccMap.value[p.id] ?? '—'}</code></td>
                             <td class="col-range">{p.bipolar ? '−1 → +1' : '0 → 1'}</td>
                         </tr>
                     ))}

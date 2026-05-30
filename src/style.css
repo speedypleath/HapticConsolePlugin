@@ -438,6 +438,25 @@ header > span {
   padding: 0 0.5rem;
 }
 
+.port-select {
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  padding: 0.2rem 0.35rem;
+  flex: 1;
+}
+
+.port-select:focus { outline: none; border-color: var(--gold-dim); }
+
+.midi-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
 .field-label {
   font-family: var(--font-mono);
   font-size: 0.48rem;

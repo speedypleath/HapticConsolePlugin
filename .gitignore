@@ -1,6 +1,9 @@
-# CMake build trees
+# CMake build trees (legacy JUCE plugin)
 build/
 build-*/
+
+# Rust / Tauri
+src-tauri/target/
 
 # macOS metadata
 .DS_Store
@@ -18,9 +21,9 @@ CMakeUserPresets.json
 .vscode/*.code-workspace
 
 # Node / UI
-Source/UI/node_modules/
-Source/UI/dist/
-Source/UI/.vite/
+node_modules/
+dist/
+.vite/
 
 # Editor temporaries
 *.swp

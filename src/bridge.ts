@@ -1,48 +1,25 @@
+import { invoke } from '@tauri-apps/api/core';
+import { listen }  from '@tauri-apps/api/event';
 import { paramValues, isOnline, ParamId } from './params';
 import { ccMap, learnTarget } from './settings';
 
-export function setupBridge(): void {
-    window.haptic = {
-        onParamChange(paramId, value) {
-            const sig = paramValues[paramId as ParamId];
-            if (sig) {
-                sig.value = value;
-                isOnline.value = true;
-            }
-        },
-        onMidiLearnComplete(paramId, cc) {
-            ccMap.value = { ...ccMap.value, [paramId]: cc };
-            learnTarget.value = null;
-        },
-    };
-}
-
-// ── Bridge factory ───────────────────────────────────────────────────────────
-
-type BridgeFn = (name: string, params: unknown[]) => Promise<unknown>;
-
-let call: BridgeFn = (_name, _params) => Promise.resolve();
-
-if (typeof window.__JUCE__ !== 'undefined') {
-    const pending = new Map<number, (v: unknown) => void>();
-    let nextId = 0;
-
-    window.__JUCE__.backend.addEventListener('__juce__complete', (data) => {
-        const { promiseId, result } = data as { promiseId: number; result: unknown };
-        pending.get(promiseId)?.(result);
-        pending.delete(promiseId);
+export async function setupBridge(): Promise<void> {
+    await listen<{ paramId: string; value: number }>('param-change', ({ payload }) => {
+        const sig = paramValues[payload.paramId as ParamId];
+        if (sig) {
+            sig.value = payload.value;
+            isOnline.value = true;
+        }
     });
 
-    call = (name, params) => {
-        const id = nextId++;
-        const promise = new Promise<unknown>(resolve => pending.set(id, resolve));
-        window.__JUCE__!.backend.emitEvent('__juce__invoke', { name, params, resultId: id });
-        return promise;
-    };
+    await listen<{ paramId: string; cc: number }>('midi-learn-complete', ({ payload }) => {
+        ccMap.value = { ...ccMap.value, [payload.paramId]: payload.cc };
+        learnTarget.value = null;
+    });
 }
 
-export const setMapping    = (cc: number, paramId: string)           => call('setMapping',    [cc, paramId]);
-export const getMappings   = ()                                       => call('getMappings',   []);
-export const startMidiLearn= (paramId: string)                       => call('startMidiLearn',[paramId]);
-export const setOscMapping = (address: string, paramId: string)      => call('setOscMapping', [address, paramId]);
-export const setOscPort    = (port: number)                          => call('setOscPort',    [port]);
+export const getMappings    = ()                                  => invoke<Record<string, number>>('get_mappings');
+export const setMapping     = (cc: number, paramId: string)      => invoke('set_mapping',      { cc, paramId });
+export const startMidiLearn = (paramId: string)                  => invoke('start_midi_learn', { paramId });
+export const listMidiPorts  = ()                                  => invoke<string[]>('list_midi_ports');
+export const selectMidiPort = (index: number)                    => invoke('select_midi_port', { index });

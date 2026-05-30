@@ -3,5 +3,7 @@ import { setupBridge } from './bridge';
 import { App } from './App';
 import './style.css';
 
-setupBridge();
-render(<App />, document.getElementById('root')!);
+(async () => {
+    await setupBridge();
+    render(<App />, document.getElementById('root')!);
+})();

@@ -1,18 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cmake:*)",
-      "Bash(cmake --build:*)",
-      "Bash(cmake --install:*)",
-      "Bash(ninja:*)",
-      "Bash(make:*)",
-      "Bash(clang-format:*)",
-      "Bash(clang-tidy:*)",
+      "Bash(cargo:*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo tauri:*)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npx:*)",
+      "Bash(rustfmt:*)",
       "Bash(ls:*)",
       "Bash(find . *)",
       "Bash(cat:*)",
       "Bash(grep:*)",
-      "Bash(npx vite:*)",
       "Bash(git status)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
@@ -28,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=\"$CLAUDE_TOOL_RESULT_FILE_PATH\"; if [[ \"$FILE\" == *.cpp || \"$FILE\" == *.h || \"$FILE\" == *.mm ]]; then clang-format -i \"$FILE\" && echo \"clang-format: $FILE\"; fi"
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty' 2>/dev/null); if [[ \"$FILE\" == *.rs ]]; then rustfmt \"$FILE\" 2>/dev/null || true; fi"
           }
         ]
       }
@@ -38,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '\\n[haptic-console] Session ended. Run: cmake --build build --config Debug to verify changes compile.'"
+            "command": "echo '\\n[haptic-console] Session ended. Run: cargo tauri dev'"
           }
         ]
       }
