@@ -7,24 +7,43 @@ optionally to any OSC-capable software.
 
 **Stack:** Tauri v2 (Rust) + Preact/TypeScript (Vite). No audio processing, no DAW plugin.
 
+![alt text](assets/image.png)
+
 ---
 
 ## Contents
 
-- [Hardware overview](#hardware-overview)
-- [Features](#features)
-- [Signal flow](#signal-flow)
-- [Requirements](#requirements)
-- [Quick start](#quick-start)
-- [Building a release](#building-a-release)
-- [UI reference](#ui-reference)
-- [Settings](#settings)
-- [Parameter reference](#parameter-reference)
-- [Default CC map](#default-cc-map)
-- [OSC address map](#osc-address-map)
-- [Architecture](#architecture)
-- [Testing](#testing)
-- [VS Code integration](#vs-code-integration)
+- [Haptic Console](#haptic-console)
+  - [Contents](#contents)
+  - [Hardware overview](#hardware-overview)
+  - [Features](#features)
+  - [Signal flow](#signal-flow)
+  - [Requirements](#requirements)
+  - [Quick start](#quick-start)
+  - [Building a release](#building-a-release)
+  - [UI reference](#ui-reference)
+    - [Header bar](#header-bar)
+    - [Flywheel module](#flywheel-module)
+    - [Joystick modules](#joystick-modules)
+    - [CC strip](#cc-strip)
+    - [Settings button](#settings-button)
+  - [Settings](#settings)
+    - [MIDI tab](#midi-tab)
+    - [OSC tab](#osc-tab)
+    - [DAW tab](#daw-tab)
+  - [Parameter reference](#parameter-reference)
+  - [Default CC map](#default-cc-map)
+  - [OSC address map](#osc-address-map)
+  - [Architecture](#architecture)
+    - [Project structure](#project-structure)
+    - [Rust backend](#rust-backend)
+    - [TypeScript frontend](#typescript-frontend)
+    - [Rust ↔ JS bridge](#rust--js-bridge)
+  - [Testing](#testing)
+  - [VS Code integration](#vs-code-integration)
+    - [Tasks (`Ctrl+Shift+B` / `Terminal → Run Task`)](#tasks-ctrlshiftb--terminal--run-task)
+    - [Launch configs (`F5`)](#launch-configs-f5)
+    - [Running tests in the UI](#running-tests-in-the-ui)
 
 ---
 
