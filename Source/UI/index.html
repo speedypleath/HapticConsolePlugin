@@ -1,69 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Haptic Console</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #0e0e0e;
-      --fg: #c8c8c8;
-      --accent: #4a9eff;
-      --bar-bg: #1e1e1e;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: ui-monospace, monospace;
-      font-size: 11px;
-      padding: 12px;
-    }
-
-    #params {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px 16px;
-    }
-
-    .param {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .param-id {
-      width: 140px;
-      flex-shrink: 0;
-      opacity: 0.6;
-    }
-
-    .param-bar-wrap {
-      flex: 1;
-      height: 4px;
-      background: var(--bar-bg);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .param-bar {
-      height: 100%;
-      background: var(--accent);
-      width: 0%;
-      transition: width 60ms linear;
-    }
-
-    .param-value {
-      width: 44px;
-      text-align: right;
-      opacity: 0.8;
-    }
-  </style>
 </head>
 <body>
-  <div id="params"></div>
-  <script type="module" src="main.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

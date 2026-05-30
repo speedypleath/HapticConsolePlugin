@@ -30,7 +30,7 @@
         {
             "label": "vite: dev server",
             "type": "shell",
-            "command": "npx vite Source/UI",
+            "command": "npm --prefix Source/UI run dev",
             "isBackground": true,
             "presentation": { "reveal": "silent", "panel": "dedicated" },
             "problemMatcher": {

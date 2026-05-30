@@ -50,7 +50,7 @@ HapticConsoleEditor::HapticConsoleEditor(HapticConsoleProcessor& p)
         listeners.push_back(std::move(listener));
     }
 
-    setSize(480, 320);
+    setSize(640, 500);
 }
 
 HapticConsoleEditor::~HapticConsoleEditor()

@@ -1,0 +1,246 @@
+/* ── Reset & tokens ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0a0a0a;
+  --surface:   #111111;
+  --border:    #2a2a2a;
+  --gold:      #c8a84b;
+  --gold-dim:  #7a6529;
+  --gold-glow: rgba(200,168,75,0.25);
+  --text:      #d0c8b8;
+  --text-dim:  #6a6050;
+  --font-mono: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+  --font-head: 'Inter', 'Helvetica Neue', sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-head);
+  user-select: none;
+  overflow: hidden;
+}
+
+/* ── App shell ──────────────────────────────────────────────────────── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.25rem 1.5rem 1rem;
+  gap: 1rem;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.6rem;
+  flex-shrink: 0;
+}
+
+header h1 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+header > span {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+#midi-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+#midi-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background 0.4s, box-shadow 0.4s;
+}
+
+#midi-dot.active {
+  background: var(--gold);
+  box-shadow: 0 0 6px var(--gold);
+}
+
+/* ── Module grid — 3 equal columns ─────────────────────────────────── */
+#modules {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.module {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.module-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+/* ── Stat readout ───────────────────────────────────────────────────── */
+.stat {
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.35rem 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.48rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ── Flywheel ───────────────────────────────────────────────────────── */
+.flywheel-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.fw-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ── Joystick ───────────────────────────────────────────────────────── */
+.joy-pad {
+  flex: 1;
+  position: relative;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  min-height: 0;
+}
+
+.joy-crosshair {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.joy-crosshair::before,
+.joy-crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--border);
+}
+
+.joy-crosshair::before { width: 100%; height: 1px; top: 50%; left: 0; }
+.joy-crosshair::after  { height: 100%; width: 1px; left: 50%; top: 0; }
+
+.joy-thumb {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 8px var(--gold-glow);
+  transition: left 0.04s linear, top 0.04s linear;
+}
+
+.joy-vals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ── CC readout strip — 7 per row, 2 rows ───────────────────────────── */
+#cc-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.cc-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.cc-bar-wrap {
+  width: 100%;
+  height: 28px;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.cc-bar {
+  width: 100%;
+  background: var(--gold);
+  transition: height 0.04s linear;
+}
+
+.cc-val {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--gold);
+  text-align: center;
+}
+
+.cc-name {
+  font-size: 0.42rem;
+  color: var(--text-dim);
+  text-align: center;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
